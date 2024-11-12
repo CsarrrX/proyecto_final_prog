@@ -50,7 +50,6 @@ void mostrar_reservas();
 void verificar_cuarto(int*);
 bool verificar_fecha(char*); 
 bool comparar_fechas(char*, char*);
-void organizar_reservas();
 int calcular_fecha(char*, char*);
 bool isBisiesto(int);
 
@@ -177,9 +176,6 @@ void registrar_reserva() {
   // Verificamos que nuestra fecha de salida no sea mayor a nuestra fecha de entrada
   while(!comparar_fechas(reservas[num_reservas].fecha_entrada, reservas[num_reservas].fecha_salida));
 
-  // Calculamos el numero de dias que el usuario planea quedarse en el hotel 
-  reservas[num_reservas].num_dias = calcular_fecha(reservas[num_reservas].fecha_entrada, reservas[num_reservas].fecha_salida);
-
   // Recaudacion de datos
   printf("Introduce el numero de habitacion (001 a 740): ");
   scanf("%d", &reservas[num_reservas].numero_de_habitacion);
@@ -200,6 +196,10 @@ void registrar_reserva() {
   }
   reservas[num_reservas].desayuno = (strcmp(user_desayuno, "si") == 0);
 
+  // Calculamos el numero de dias que el usuario planea quedarse en el hotel 
+  reservas[num_reservas].num_dias = calcular_fecha(reservas[num_reservas].fecha_entrada, reservas[num_reservas].fecha_salida);
+
+  // Calculo del precio
   reservas[num_reservas].precio = reservas[num_reservas].num_dias * PRECIO_NOCHE; 
   if(reservas[num_reservas].desayuno == 1) {
     reservas[num_reservas].precio += PRECIO_DESAYUNO * reservas[num_reservas].num_dias;
@@ -211,7 +211,6 @@ void registrar_reserva() {
   printf("El ID de tu reserva es: %d\n", reservas[num_reservas].ID);
   printf("El precio de tu reserva es: %.2f\n", reservas[num_reservas].precio);
   num_reservas++;
-  organizar_reservas();
 }
 
 void modificar_reserva() {
@@ -238,17 +237,42 @@ void modificar_reserva() {
           fgets(reservas[i].nombre, sizeof(reservas[i].nombre), stdin);
           break;
         case 2:
-          printf("Ingrese la nueva fecha de entrada: ");
-          fgets(reservas[i].fecha_entrada, sizeof(reservas[i].fecha_entrada), stdin);
+          do {
+            printf("Ingrese la nueva fecha de entrada: ");
+            fgets(reservas[i].fecha_entrada, sizeof(reservas[i].fecha_entrada), stdin);
+            if(reservas[i].fecha_entrada[strlen(reservas[i].fecha_entrada) - 1] == '\n') {
+            reservas[i].fecha_entrada[strlen(reservas[i].fecha_entrada) - 1] = '\0';
+            }
+            if(!verificar_fecha(reservas[i].fecha_entrada)) {
+              printf("La fecha no es valida, re-ingrese: \n");
+            } 
+            if(!comparar_fechas(reservas[i].fecha_entrada, reservas[i].fecha_salida)) {
+              printf("La fecha de salida es previa a la fecha de entrada, re-ingrese: \n");
+            } 
+          }
+          while(!verificar_fecha(reservas[i].fecha_entrada) || !comparar_fechas(reservas[i].fecha_entrada, reservas[i].fecha_salida));
           break;
         case 3:
-          printf("Ingrese la nueva fecha de salida: ");
-          fgets(reservas[i].fecha_salida, sizeof(reservas[i].fecha_salida), stdin);
+          do {
+            printf("Ingrese la nueva fecha de salida: ");
+            fgets(reservas[i].fecha_salida, sizeof(reservas[i].fecha_salida), stdin);
+            if(reservas[i].fecha_salida[strlen(reservas[i].fecha_salida) - 1] == '\n') {
+            reservas[i].fecha_salida[strlen(reservas[i].fecha_salida) - 1] = '\0';
+            }
+            if(!verificar_fecha(reservas[i].fecha_salida)) {
+              printf("La fecha no es valida, re-ingrese: \n");
+            } 
+            if(!comparar_fechas(reservas[i].fecha_entrada, reservas[i].fecha_salida)) {
+              printf("La fecha de salida de previa a la fecha de entrada, re-ingrese: \n");
+            }
+          }
+          while(!verificar_fecha(reservas[i].fecha_salida) || !comparar_fechas(reservas[i].fecha_entrada, reservas[i].fecha_salida));
           break;
         case 4:
           printf("Ingrese el nuevo numero de cuarto: ");
           scanf("%d", &reservas[i].numero_de_habitacion);
           getchar();
+          verificar_cuarto(&reservas[i].numero_de_habitacion);
           break;
         case 5:
           reservas[i].desayuno = !reservas[i].desayuno;
@@ -260,6 +284,11 @@ void modificar_reserva() {
         default:
           printf("Opcion no valida. Cancelando...\n");
           break;
+      }
+      reservas[i].num_dias = calcular_fecha(reservas[i].fecha_entrada, reservas[i].fecha_salida);
+      reservas[i].precio = reservas[i].num_dias * PRECIO_NOCHE;
+      if(reservas[i].desayuno == true) {
+        reservas[i].precio += reservas[i].num_dias * PRECIO_DESAYUNO; 
       }
       break;
     }
@@ -373,7 +402,7 @@ bool comparar_fechas(char *fecha1, char *fecha2) {
   if (mes1 != mes2) {
     return mes1 < mes2;
   }
-  return dia1 <= dia2;
+  return dia1 < dia2;
 }
 
 int calcular_fecha(char *fecha1, char *fecha2) {
@@ -405,12 +434,6 @@ int calcular_fecha(char *fecha1, char *fecha2) {
   total_dias2 += dia2;
 
   return total_dias2 - total_dias1;
-}
-
-void organizar_reservas() {
-  for(int i = 0; i < num_reservas; i++) {
-
-  }
 }
 
 bool isBisiesto(int anio) {
