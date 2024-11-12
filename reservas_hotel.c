@@ -1,13 +1,24 @@
+// Librerias utilizadas
 #include <stdio.h>
+// Variables y funciones booleanas
 #include <stdbool.h>
+// tolower()
 #include <ctype.h>
+// strlen(), etc... 
 #include <string.h>
+// malloc() free() realloc()
 #include <stdlib.h> 
 
+// Constantes globales
 #define PRECIO_DESAYUNO 400
 #define PRECIO_NOCHE 1200
+// Incrementos en el tamanio del arreglo de structs (en el heap)
 #define INCREMENTO_CAPACIDAD 10 
 
+// Dias por mes 
+int dias_por_mes[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+// Definicion de la estructura de una reserva
 struct Reserva {
   int ID;
   char fecha_entrada[20];
@@ -19,12 +30,17 @@ struct Reserva {
   int num_dias;
 };
 
+// Puntero al primer elemento de un arreglo de Reserva
 struct Reserva *reservas;
+// Numero actual de reservas
 int num_reservas = 0; 
+// Capacidad actual en el arreglo de Reserva
 int capacidad_actual = 0;
 
+// Asignacion de IDs 
 int current_ID = 1;
 
+// Prototipado de las funciones a utilizar
 void incrementar_reservas();
 void registrar_reserva();
 void modificar_reserva();
@@ -33,6 +49,7 @@ void buscar_reserva();
 void mostrar_reservas(); 
 void verificar_cuarto(int*);
 bool verificar_fecha(char*); 
+bool comparar_fechas(char*, char*);
 void organizar_reservas();
 int calcular_fecha(char*, char*);
 bool isBisiesto(int);
@@ -40,6 +57,7 @@ bool isBisiesto(int);
 int main() {
   int user_option;
   do {
+    // Menu 
     printf("--------------------------------------\n");
     printf("  1. Registrar una nueva reserva\n");
     printf("  2. Modificar una reserva\n");
@@ -74,13 +92,16 @@ int main() {
         printf("Opcion no valida, por favor re-ingrese una opcion valida\n");
     }
   } while (user_option != 0);
+  // Liberamos el espacio en memoria del arreglo reservas
   free(reservas);
   return 0;
 }
 
 void incrementar_reservas() {
+  // Si vamos a hacer una reserva pero, no hay espacio allocated le asignamos 10
   if(capacidad_actual == 0) {
     capacidad_actual = INCREMENTO_CAPACIDAD;
+    // Allocamos memoria al puntero reservas
     reservas = malloc(capacidad_actual * sizeof(struct Reserva));
     if(reservas == NULL) {
       printf("Error al asignar memoria.\n");
@@ -88,8 +109,10 @@ void incrementar_reservas() {
     }
   }
   else {
+    // Si ya existe memoria, pero llegamos al limite del arreglo y no hay mas memoria, le incrementamos 10 al arreglo y reallocamos memoria
     if(capacidad_actual <= num_reservas) {
       capacidad_actual += INCREMENTO_CAPACIDAD;
+      // Reallocamos memoria al puntero reservas
       reservas = realloc(reservas, capacidad_actual * sizeof(struct Reserva));
       if(reservas == NULL) {
         printf("Error al asignar memoria.\n");
@@ -100,43 +123,74 @@ void incrementar_reservas() {
 }
 
 void registrar_reserva() {
+  // Primero revisamos si tenemos que allocar o reallocar memoria
   incrementar_reservas(); 
+  // Cadena para que el usuario use si o no para decidir su desayuno
   char user_desayuno[3];
   printf("Has seleccionado la opcion registrar reserva.\n");
 
+  // Recoleccion de datos 
   printf("Introduce el nombre del cliente: ");
   fgets(reservas[num_reservas].nombre, sizeof(reservas[num_reservas].nombre), stdin);
+  // Eliminamos el caracter que queda en buffer '\n'
   if(reservas[num_reservas].nombre[strlen(reservas[num_reservas].nombre) - 1] == '\n') {
     reservas[num_reservas].nombre[strlen(reservas[num_reservas].nombre) - 1] = '\0';
   }
 
   do {
-    printf("Introduce la fecha de entrada (dd/mm/aaaa): ");
-    fgets(reservas[num_reservas].fecha_entrada, sizeof(reservas[num_reservas].fecha_entrada), stdin);
-    if(reservas[num_reservas].fecha_entrada[strlen(reservas[num_reservas].fecha_entrada) - 1] == '\n') {
-      reservas[num_reservas].fecha_entrada[strlen(reservas[num_reservas].fecha_entrada) - 1] = '\0';
+    // Recoleccion de datos
+    do {
+      printf("Introduce la fecha de entrada (dd/mm/aaaa): ");
+      fgets(reservas[num_reservas].fecha_entrada, sizeof(reservas[num_reservas].fecha_entrada), stdin);
+      // Eliminamos el caracter del "enter"
+      if(reservas[num_reservas].fecha_entrada[strlen(reservas[num_reservas].fecha_entrada) - 1] == '\n') {
+        reservas[num_reservas].fecha_entrada[strlen(reservas[num_reservas].fecha_entrada) - 1] = '\0';
+      }
+      // Si verificar fecha es falso, entonces imprimimos
+      if(!verificar_fecha(reservas[num_reservas].fecha_entrada)) {
+        printf("Fecha no valida, re-ingrese.\n");
+      }
     }
-    if(!verificar_fecha(reservas[num_reservas].fecha_entrada)) {
-      printf("Fecha no valida, re-ingrese.\n");
+    // Verificamos que nuestra fecha sea correcta (formato dd/mm/aaaa, dias y meses correctos)
+    while(!verificar_fecha(reservas[num_reservas].fecha_entrada));
+
+    // Recoleccion de datos
+    do {
+      printf("Introduce la fecha de salida (dd/mm/aaaa): ");
+      fgets(reservas[num_reservas].fecha_salida, sizeof(reservas[num_reservas].fecha_salida), stdin);
+      // Eliminamos el caracter del "enter"
+      if(reservas[num_reservas].fecha_salida[strlen(reservas[num_reservas].fecha_salida) - 1] == '\n') {
+        reservas[num_reservas].fecha_salida[strlen(reservas[num_reservas].fecha_salida) - 1] = '\0';
+      }
+      // Si verificar fecha es falso, entonces imprimimos
+      if(!verificar_fecha(reservas[num_reservas].fecha_salida)) {
+        printf("Fecha no valida, re-ingrese.\n");
+      }
+    }
+    // Verificamos que nuestra fecha sea correcta (formato dd/mm/aaaa, dias y meses correctos)
+    while(!verificar_fecha(reservas[num_reservas].fecha_salida)); 
+    // Si al comparar nuestra fecha de entrada con nuestra fecha de salida esta es menor, entonces imprimimos
+    if(!comparar_fechas(reservas[num_reservas].fecha_entrada, reservas[num_reservas].fecha_salida)) {
+      printf("La fecha de salida es previa a la fecha de entrada, re-ingrese:\n");
     }
   }
-  while(!verificar_fecha(reservas[num_reservas].fecha_entrada));
+  // Verificamos que nuestra fecha de salida no sea mayor a nuestra fecha de entrada
+  while(!comparar_fechas(reservas[num_reservas].fecha_entrada, reservas[num_reservas].fecha_salida));
 
-  printf("Introduce la fecha de salida (dd/mm/aaaa): ");
-  fgets(reservas[num_reservas].fecha_salida, sizeof(reservas[num_reservas].fecha_salida), stdin);
-  if(reservas[num_reservas].fecha_salida[strlen(reservas[num_reservas].fecha_salida) - 1] == '\n') {
-    reservas[num_reservas].fecha_salida[strlen(reservas[num_reservas].fecha_salida) - 1] = '\0';
-  }
-
+  // Calculamos el numero de dias que el usuario planea quedarse en el hotel 
   reservas[num_reservas].num_dias = calcular_fecha(reservas[num_reservas].fecha_entrada, reservas[num_reservas].fecha_salida);
 
+  // Recaudacion de datos
   printf("Introduce el numero de habitacion (001 a 740): ");
   scanf("%d", &reservas[num_reservas].numero_de_habitacion);
+  // Verificamos que el cuarto se encuentre entre 001 y 740 y que no este apartado la fecha seleccionada
   verificar_cuarto(&reservas[num_reservas].numero_de_habitacion);
 
+  // Recaudacion de datos
   printf("Desea desayuno? (Si/No): ");
   getchar();  
   fgets(user_desayuno, sizeof(user_desayuno), stdin);
+  // Eliminacion del caracter "enter"
   if(user_desayuno[strlen(user_desayuno) - 1] == '\n') {
     user_desayuno[strlen(user_desayuno) - 1] = '\0';
   }
@@ -284,66 +338,73 @@ void verificar_cuarto(int *numero_cuarto) {
 }
 
 bool verificar_fecha(char *fecha) {
-  if(fecha[2] != '/' || strlen(fecha) != 10 || fecha[5] != '/') {
+  if (fecha[2] != '/' || fecha[5] != '/' || strlen(fecha) != 10) {
     return false;
   }
-  return true;
 
+  int dia = (fecha[0] - '0') * 10 + (fecha[1] - '0');
+  int mes = (fecha[3] - '0') * 10 + (fecha[4] - '0');
+  int anio = (fecha[6] - '0') * 1000 + (fecha[7] - '0') * 100 + (fecha[8] - '0') * 10 + (fecha[9] - '0');
+
+  if (mes < 1 || mes > 12 || dia < 1 || anio < 2024 || anio > 2030) {
+    return false;
+  }
+
+  int dias_en_mes = dias_por_mes[mes - 1];
+  if (mes == 2 && isBisiesto(anio)) {
+    dias_en_mes++;
+  }
+
+  return dia <= dias_en_mes;
 }
 
-int calcular_fecha(char *fecha, char *fecha_salida) {
-  int dia1 = 0, mes1 = 0, anio1 = 0;
-  dia1 += (fecha[0] - 48) * 10;
-  dia1 += (fecha[1] - 48);
-  mes1 += (fecha[3] - 48) * 10;
-  mes1 += (fecha[4] - 48); 
-  anio1 += (fecha[6] - 48) * 1000;
-  anio1 += (fecha[7] - 48) * 100;
-  anio1 += (fecha[8] - 48) * 10;
-  anio1 += (fecha[9] - 48);
+bool comparar_fechas(char *fecha1, char *fecha2) {
+  int dia1 = (fecha1[0] - '0') * 10 + (fecha1[1] - '0');
+  int mes1 = (fecha1[3] - '0') * 10 + (fecha1[4] - '0');
+  int anio1 = (fecha1[6] - '0') * 1000 + (fecha1[7] - '0') * 100 + (fecha1[8] - '0') * 10 + (fecha1[9] - '0');
 
-  int dia2 = 0, mes2 = 0, anio2 = 0;
-  dia2 += (fecha_salida[0] - 48) * 10;
-  dia2 += (fecha_salida[1] - 48);
-  mes2 += (fecha_salida[3] - 48) * 10;
-  mes2 += (fecha_salida[4] - 48); 
-  anio2 += (fecha_salida[6] - 48) * 1000;
-  anio2 += (fecha_salida[7] - 48) * 100;
-  anio2 += (fecha_salida[8] - 48) * 10;
-  anio2 += (fecha_salida[9] - 48);
+  int dia2 = (fecha2[0] - '0') * 10 + (fecha2[1] - '0');
+  int mes2 = (fecha2[3] - '0') * 10 + (fecha2[4] - '0');
+  int anio2 = (fecha2[6] - '0') * 1000 + (fecha2[7] - '0') * 100 + (fecha2[8] - '0') * 10 + (fecha2[9] - '0');
 
-  if(anio1 == anio2 && mes1 == mes2) {
-    return dia2 - dia1; 
+  if (anio1 != anio2) {
+    return anio1 < anio2;
   }
-
-  int dias_por_mes[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
-  if(isBisiesto(anio1)) {
-    dias_por_mes[1] = 29;
+  if (mes1 != mes2) {
+    return mes1 < mes2;
   }
+  return dia1 <= dia2;
+}
 
-  int total_dias = 0;
-  total_dias += dias_por_mes[mes1 - 1] - dia1;
+int calcular_fecha(char *fecha1, char *fecha2) {
+  // Asumiendo que fecha1 < fecha2
+  int dia1 = (fecha1[0] - '0') * 10 + (fecha1[1] - '0');
+  int mes1 = (fecha1[3] - '0') * 10 + (fecha1[4] - '0');
+  int anio1 = (fecha1[6] - '0') * 1000 + (fecha1[7] - '0') * 100 + (fecha1[8] - '0') * 10 + (fecha1[9] - '0');
 
-  for(int i = 0; i < 12; i++) {
-    total_dias += dias_por_mes[i];
+  int dia2 = (fecha2[0] - '0') * 10 + (fecha2[1] - '0');
+  int mes2 = (fecha2[3] - '0') * 10 + (fecha2[4] - '0');
+  int anio2 = (fecha2[6] - '0') * 1000 + (fecha2[7] - '0') * 100 + (fecha2[8] - '0') * 10 + (fecha2[9] - '0');
+
+  int total_dias1 = 0;
+  for (int i = 2024; i < anio1; i++) {
+    total_dias1 += isBisiesto(i) ? 366 : 365;
   }
-
-  for(int i = anio1 + 1; i < anio2; i++) {
-    total_dias += (isBisiesto(i)) ? 366 : 365; 
+  for (int i = 0; i < mes1 - 1; i++) {
+    total_dias1 += dias_por_mes[i];
   }
+  total_dias1 += dia1;
 
-  if(isBisiesto(anio2)) {
-    dias_por_mes[1] = 29;
+  int total_dias2 = 0;
+  for (int i = 2024; i < anio2; i++) {
+    total_dias2 += isBisiesto(i) ? 366 : 365;
   }
-
-  for(int i = 0; i < mes2 - 1; i++) {
-    total_dias += dias_por_mes[i];
+  for (int i = 0; i < mes2 - 1; i++) {
+    total_dias2 += dias_por_mes[i];
   }
+  total_dias2 += dia2;
 
-  total_dias += dia2;
-
-  return total_dias;
+  return total_dias2 - total_dias1;
 }
 
 void organizar_reservas() {
@@ -353,8 +414,5 @@ void organizar_reservas() {
 }
 
 bool isBisiesto(int anio) {
-  if(anio % 4 == 0) {
-    return true;
-  } 
-  return false;
+  return ((anio % 4 == 0) && (anio % 100 != 0)) || (anio % 400 == 0);
 }
