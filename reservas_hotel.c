@@ -4,6 +4,8 @@
 #include <string.h>
 #include <stdlib.h> 
 
+#define PRECIO_DESAYUNO 400
+#define PRECIO_NOCHE 1200
 #define INCREMENTO_CAPACIDAD 10 
 
 struct Reserva {
@@ -14,6 +16,7 @@ struct Reserva {
   float precio;
   int numero_de_habitacion;
   bool desayuno;
+  int num_dias;
 };
 
 struct Reserva *reservas;
@@ -31,6 +34,8 @@ void mostrar_reservas();
 void verificar_cuarto(int*);
 bool verificar_fecha(char*); 
 void organizar_reservas();
+int calcular_fecha(char*, char*);
+bool isBisiesto(int);
 
 int main() {
   int user_option;
@@ -123,6 +128,8 @@ void registrar_reserva() {
     reservas[num_reservas].fecha_salida[strlen(reservas[num_reservas].fecha_salida) - 1] = '\0';
   }
 
+  reservas[num_reservas].num_dias = calcular_fecha(reservas[num_reservas].fecha_entrada, reservas[num_reservas].fecha_salida);
+
   printf("Introduce el numero de habitacion (001 a 740): ");
   scanf("%d", &reservas[num_reservas].numero_de_habitacion);
   verificar_cuarto(&reservas[num_reservas].numero_de_habitacion);
@@ -138,6 +145,11 @@ void registrar_reserva() {
     user_desayuno[i] = tolower(user_desayuno[i]);
   }
   reservas[num_reservas].desayuno = (strcmp(user_desayuno, "si") == 0);
+
+  reservas[num_reservas].precio = reservas[num_reservas].num_dias * PRECIO_NOCHE; 
+  if(reservas[num_reservas].desayuno == 1) {
+    reservas[num_reservas].precio += PRECIO_DESAYUNO * reservas[num_reservas].num_dias;
+  }
 
   printf("RESERVA REGISTRADA EXITOSAMENTE.\n");
   reservas[num_reservas].ID = current_ID;
@@ -279,22 +291,70 @@ bool verificar_fecha(char *fecha) {
 
 }
 
-void convertir_fecha(char *fecha) {
-  int dia = 0, mes = 0, anio = 0;
-  dia += (fecha[0] - 48) * 10;
-  dia += (fecha[1] - 48);
-  mes += (fecha[3] - 48) * 10;
-  mes += (fecha[4] - 48); 
-  anio += (fecha[6] - 48) * 1000;
-  anio += (fecha[7] - 48) * 100;
-  anio += (fecha[8] - 48) * 10;
-  anio += (fecha[9] - 48);
+int calcular_fecha(char *fecha, char *fecha_salida) {
+  int dia1 = 0, mes1 = 0, anio1 = 0;
+  dia1 += (fecha[0] - 48) * 10;
+  dia1 += (fecha[1] - 48);
+  mes1 += (fecha[3] - 48) * 10;
+  mes1 += (fecha[4] - 48); 
+  anio1 += (fecha[6] - 48) * 1000;
+  anio1 += (fecha[7] - 48) * 100;
+  anio1 += (fecha[8] - 48) * 10;
+  anio1 += (fecha[9] - 48);
 
-  int dias_por_mes[12] = {}
+  int dia2 = 0, mes2 = 0, anio2 = 0;
+  dia2 += (fecha_salida[0] - 48) * 10;
+  dia2 += (fecha_salida[1] - 48);
+  mes2 += (fecha_salida[3] - 48) * 10;
+  mes2 += (fecha_salida[4] - 48); 
+  anio2 += (fecha_salida[6] - 48) * 1000;
+  anio2 += (fecha_salida[7] - 48) * 100;
+  anio2 += (fecha_salida[8] - 48) * 10;
+  anio2 += (fecha_salida[9] - 48);
+
+  if(anio1 == anio2 && mes1 == mes2) {
+    return dia2 - dia1; 
+  }
+
+  int dias_por_mes[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+  if(isBisiesto(anio1)) {
+    dias_por_mes[1] = 29;
+  }
+
+  int total_dias = 0;
+  total_dias += dias_por_mes[mes1 - 1] - dia1;
+
+  for(int i = 0; i < 12; i++) {
+    total_dias += dias_por_mes[i];
+  }
+
+  for(int i = anio1 + 1; i < anio2; i++) {
+    total_dias += (isBisiesto(i)) ? 366 : 365; 
+  }
+
+  if(isBisiesto(anio2)) {
+    dias_por_mes[1] = 29;
+  }
+
+  for(int i = 0; i < mes2 - 1; i++) {
+    total_dias += dias_por_mes[i];
+  }
+
+  total_dias += dia2;
+
+  return total_dias;
 }
 
 void organizar_reservas() {
   for(int i = 0; i < num_reservas; i++) {
 
   }
+}
+
+bool isBisiesto(int anio) {
+  if(anio % 4 == 0) {
+    return true;
+  } 
+  return false;
 }
