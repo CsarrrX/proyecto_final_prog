@@ -22,6 +22,7 @@ int capacidad_actual = 0;
 
 int current_ID = 1;
 
+void incrementar_reservas();
 void registrar_reserva();
 void modificar_reserva();
 void cancelar_reserva();
@@ -112,7 +113,6 @@ void registrar_reserva() {
     }
     if(!verificar_fecha(reservas[num_reservas].fecha_entrada)) {
       printf("Fecha no valida, re-ingrese.\n");
-      printf("%s\n", reservas[num_reservas].fecha_entrada);
     }
   }
   while(!verificar_fecha(reservas[num_reservas].fecha_entrada));
@@ -276,6 +276,21 @@ bool verificar_fecha(char *fecha) {
     return false;
   }
   return true;
+
+}
+
+void convertir_fecha(char *fecha) {
+  int dia = 0, mes = 0, anio = 0;
+  dia += (fecha[0] - 48) * 10;
+  dia += (fecha[1] - 48);
+  mes += (fecha[3] - 48) * 10;
+  mes += (fecha[4] - 48); 
+  anio += (fecha[6] - 48) * 1000;
+  anio += (fecha[7] - 48) * 100;
+  anio += (fecha[8] - 48) * 10;
+  anio += (fecha[9] - 48);
+
+  int dias_por_mes[12] = {}
 }
 
 void organizar_reservas() {
