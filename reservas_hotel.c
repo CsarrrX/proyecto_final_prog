@@ -215,82 +215,88 @@ void registrar_reserva() {
 
 void modificar_reserva() {
   int user_ID, user_option; 
-  printf("Introduce el ID de tu reserva: ");
-  scanf("%d", &user_ID);
-  getchar();
-  for(int i = 0; i < num_reservas; i++) {
-    if(user_ID == reservas[i].ID) {
-      printf("Reserva encontrada.\n");
-      printf("Introduzca que modificar:\n");
-      printf("1. Nombre\n");
-      printf("2. Fecha de entrada\n");
-      printf("3. Fecha de salida\n");
-      printf("4. Numero de cuarto\n");
-      printf("5. Desayuno\n");
-      printf("0. Cancelar\n");
-      printf("Ingrese una opcion: ");
-      scanf("%d", &user_option);
-      getchar();
-      switch(user_option) {
-        case 1:
-          printf("Ingrese el nuevo nombre: ");
-          fgets(reservas[i].nombre, sizeof(reservas[i].nombre), stdin);
-          break;
-        case 2:
-          do {
-            printf("Ingrese la nueva fecha de entrada: ");
-            fgets(reservas[i].fecha_entrada, sizeof(reservas[i].fecha_entrada), stdin);
-            if(reservas[i].fecha_entrada[strlen(reservas[i].fecha_entrada) - 1] == '\n') {
-            reservas[i].fecha_entrada[strlen(reservas[i].fecha_entrada) - 1] = '\0';
+  if(num_reservas == 0) {
+    printf("No existen reservas. \n");
+  }
+  else {
+    printf("Introduce el ID de tu reserva: ");
+    scanf("%d", &user_ID);
+    getchar();
+    for(int i = 0; i < num_reservas; i++) {
+      if(user_ID == reservas[i].ID) {
+        printf("Reserva encontrada.\n");
+        printf("Introduzca que modificar:\n");
+        printf("1. Nombre\n");
+        printf("2. Fecha de entrada\n");
+        printf("3. Fecha de salida\n");
+        printf("4. Numero de cuarto\n");
+        printf("5. Desayuno\n");
+        printf("0. Cancelar\n");
+        printf("Ingrese una opcion: ");
+        scanf("%d", &user_option);
+        getchar();
+        switch(user_option) {
+          case 1:
+            printf("Ingrese el nuevo nombre: ");
+            fgets(reservas[i].nombre, sizeof(reservas[i].nombre), stdin);
+            break;
+          case 2:
+            do {
+              printf("Ingrese la nueva fecha de entrada: ");
+              fgets(reservas[i].fecha_entrada, sizeof(reservas[i].fecha_entrada), stdin);
+              if(reservas[i].fecha_entrada[strlen(reservas[i].fecha_entrada) - 1] == '\n') {
+              reservas[i].fecha_entrada[strlen(reservas[i].fecha_entrada) - 1] = '\0';
+              }
+              if(!verificar_fecha(reservas[i].fecha_entrada)) {
+                printf("La fecha no es valida, re-ingrese: \n");
+              } 
+              if(!comparar_fechas(reservas[i].fecha_entrada, reservas[i].fecha_salida)) {
+                printf("La fecha de salida es previa a la fecha de entrada, re-ingrese: \n");
+              } 
             }
-            if(!verificar_fecha(reservas[i].fecha_entrada)) {
-              printf("La fecha no es valida, re-ingrese: \n");
-            } 
-            if(!comparar_fechas(reservas[i].fecha_entrada, reservas[i].fecha_salida)) {
-              printf("La fecha de salida es previa a la fecha de entrada, re-ingrese: \n");
-            } 
-          }
-          while(!verificar_fecha(reservas[i].fecha_entrada) || !comparar_fechas(reservas[i].fecha_entrada, reservas[i].fecha_salida));
-          break;
-        case 3:
-          do {
-            printf("Ingrese la nueva fecha de salida: ");
-            fgets(reservas[i].fecha_salida, sizeof(reservas[i].fecha_salida), stdin);
-            if(reservas[i].fecha_salida[strlen(reservas[i].fecha_salida) - 1] == '\n') {
-            reservas[i].fecha_salida[strlen(reservas[i].fecha_salida) - 1] = '\0';
+            while(!verificar_fecha(reservas[i].fecha_entrada) || !comparar_fechas(reservas[i].fecha_entrada, reservas[i].fecha_salida));
+            break;
+          case 3:
+            do {
+              printf("Ingrese la nueva fecha de salida: ");
+              fgets(reservas[i].fecha_salida, sizeof(reservas[i].fecha_salida), stdin);
+              if(reservas[i].fecha_salida[strlen(reservas[i].fecha_salida) - 1] == '\n') {
+              reservas[i].fecha_salida[strlen(reservas[i].fecha_salida) - 1] = '\0';
+              }
+              if(!verificar_fecha(reservas[i].fecha_salida)) {
+                printf("La fecha no es valida, re-ingrese: \n");
+              } 
+              if(!comparar_fechas(reservas[i].fecha_entrada, reservas[i].fecha_salida)) {
+                printf("La fecha de salida de previa a la fecha de entrada, re-ingrese: \n");
+              }
             }
-            if(!verificar_fecha(reservas[i].fecha_salida)) {
-              printf("La fecha no es valida, re-ingrese: \n");
-            } 
-            if(!comparar_fechas(reservas[i].fecha_entrada, reservas[i].fecha_salida)) {
-              printf("La fecha de salida de previa a la fecha de entrada, re-ingrese: \n");
-            }
-          }
-          while(!verificar_fecha(reservas[i].fecha_salida) || !comparar_fechas(reservas[i].fecha_entrada, reservas[i].fecha_salida));
-          break;
-        case 4:
-          printf("Ingrese el nuevo numero de cuarto: ");
-          scanf("%d", &reservas[i].numero_de_habitacion);
-          getchar();
-          verificar_cuarto(&reservas[i].numero_de_habitacion);
-          break;
-        case 5:
-          reservas[i].desayuno = !reservas[i].desayuno;
-          printf("Desayuno actualizado.\n");
-          break;
-        case 0:
-          printf("Cancelando...\n");
-          break;
-        default:
-          printf("Opcion no valida. Cancelando...\n");
-          break;
+            while(!verificar_fecha(reservas[i].fecha_salida) || !comparar_fechas(reservas[i].fecha_entrada, reservas[i].fecha_salida));
+            break;
+          case 4:
+            printf("Ingrese el nuevo numero de cuarto: ");
+            scanf("%d", &reservas[i].numero_de_habitacion);
+            getchar();
+            verificar_cuarto(&reservas[i].numero_de_habitacion);
+            break;
+          case 5:
+            reservas[i].desayuno = !reservas[i].desayuno;
+            printf("Desayuno actualizado.\n");
+            break;
+          case 0:
+            printf("Cancelando...\n");
+            break;
+          default:
+            printf("Opcion no valida. Cancelando...\n");
+            break;
+        }
+        reservas[i].num_dias = calcular_fecha(reservas[i].fecha_entrada, reservas[i].fecha_salida);
+        reservas[i].precio = reservas[i].num_dias * PRECIO_NOCHE;
+        if(reservas[i].desayuno == true) {
+          reservas[i].precio += reservas[i].num_dias * PRECIO_DESAYUNO; 
+        }
+        printf("El nuevo precio de tu reserva es: %.2f\n", reservas[i].precio);
+        break;
       }
-      reservas[i].num_dias = calcular_fecha(reservas[i].fecha_entrada, reservas[i].fecha_salida);
-      reservas[i].precio = reservas[i].num_dias * PRECIO_NOCHE;
-      if(reservas[i].desayuno == true) {
-        reservas[i].precio += reservas[i].num_dias * PRECIO_DESAYUNO; 
-      }
-      break;
     }
   }
 }
@@ -301,6 +307,7 @@ void cancelar_reserva() {
     printf("No existen reservas.\n");
   }
   else {
+    printf("--------------------------------------------------\n");
     printf("Introduce el ID de tu reserva: ");
     scanf("%d", &user_ID);
     for(int i = 0; i < num_reservas; i++) {
@@ -315,6 +322,7 @@ void cancelar_reserva() {
         printf("Reserva cancelada.\n");
         num_reservas--;
         break;
+        printf("--------------------------------------------------\n");
       }
     }
   }
@@ -326,10 +334,12 @@ void buscar_reserva() {
     printf("No existen reservas.\n");
   } 
   else {
+    printf("--------------------------------------------------\n");
     printf("Introduce el ID de tu reserva: ");
     scanf("%d", &user_ID);
     for(int i = 0; i < num_reservas; i++) {
       if(user_ID == reservas[i].ID) {
+        printf("--------------------------------------------------\n");
         printf("Reserva encontrada:\n");
         printf("Nombre: %s\n", reservas[i].nombre);
         printf("Fecha de entrada: %s\n", reservas[i].fecha_entrada);
@@ -337,6 +347,7 @@ void buscar_reserva() {
         printf("Numero de cuarto: %d\n", reservas[i].numero_de_habitacion);
         printf("Precio: %f\n", reservas[i].precio);
         printf("Desayuno: %d\n", reservas[i].desayuno);
+        printf("--------------------------------------------------\n");
         break;
       }
     }
@@ -345,16 +356,20 @@ void buscar_reserva() {
 
 void mostrar_reservas() {
   if(num_reservas == 0) {
+    printf("--------------------------------------------------\n");
     printf("No existen reservas.\n");
+    printf("--------------------------------------------------\n");
   }
   else {  
     for(int i = 0; i < num_reservas; i++) {
+      printf("--------------------------------------------------\n");
       printf("RESERVA NUMERO %d:\n", i + 1); 
       printf("Nombre: %s\n", reservas[i].nombre);
       printf("Fecha de entrada: %s\n", reservas[i].fecha_entrada);
       printf("Fecha de salida: %s\n", reservas[i].fecha_salida);
       printf("Numero de cuarto: %d\n", reservas[i].numero_de_habitacion);
       printf("Desayuno: %d\n", reservas[i].desayuno);
+      printf("--------------------------------------------------\n");
     }
   }
 }
