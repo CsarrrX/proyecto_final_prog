@@ -47,7 +47,7 @@ void modificar_reserva();
 void cancelar_reserva();
 void buscar_reserva();
 void mostrar_reservas(); 
-void verificar_cuarto(int*);
+bool verificar_cuarto(int*, char*, char*, int*);
 bool verificar_fecha(char*); 
 bool comparar_fechas(char*, char*);
 int calcular_fecha(char*, char*);
@@ -177,10 +177,13 @@ void registrar_reserva() {
   while(!comparar_fechas(reservas[num_reservas].fecha_entrada, reservas[num_reservas].fecha_salida));
 
   // Recaudacion de datos
-  printf("Introduce el numero de habitacion (001 a 740): ");
-  scanf("%d", &reservas[num_reservas].numero_de_habitacion);
-  // Verificamos que el cuarto se encuentre entre 001 y 740 y que no este apartado la fecha seleccionada
-  verificar_cuarto(&reservas[num_reservas].numero_de_habitacion);
+  do {
+    printf("Introduce el numero de habitacion (001 a 740): ");
+    scanf("%d", &reservas[num_reservas].numero_de_habitacion);
+    // Verificamos que el cuarto se encuentre entre 001 y 740 y que no este apartado la fecha seleccionada
+  }
+  while(!verificar_cuarto(&reservas[num_reservas].numero_de_habitacion, reservas[num_reservas].fecha_entrada, reservas[num_reservas].fecha_salida, &reservas[num_reservas].ID));
+  
 
   // Recaudacion de datos
   printf("Desea desayuno? (Si/No): ");
@@ -276,7 +279,7 @@ void modificar_reserva() {
             printf("Ingrese el nuevo numero de cuarto: ");
             scanf("%d", &reservas[i].numero_de_habitacion);
             getchar();
-            verificar_cuarto(&reservas[i].numero_de_habitacion);
+            verificar_cuarto(&reservas[i].numero_de_habitacion, reservas[i].fecha_entrada, reservas[i].fecha_salida, &reservas[i].ID);
             break;
           case 5:
             reservas[i].desayuno = !reservas[i].desayuno;
@@ -374,11 +377,20 @@ void mostrar_reservas() {
   }
 }
 
-void verificar_cuarto(int *numero_cuarto) {
-  while(*numero_cuarto < 1 || *numero_cuarto > 740) {
-    printf("Numero de habitacion no valido. Porfavor re-ingrese numero de habitacion: ");
-    scanf("%d", numero_cuarto);
+bool verificar_cuarto(int *numero_cuarto, char *fecha_entrada, char *fecha_salida, int *ID) {
+  if (*numero_cuarto < 1 || *numero_cuarto > 740) {
+    printf("El cuarto no existe, por favor introduce un numero de 1 a 740: \n");
+    return false;
   }
+  for (int i = 0; i < num_reservas; i++) {
+    if (reservas[i].numero_de_habitacion == *numero_cuarto && reservas[i].ID != *ID) {
+      if (!(comparar_fechas(fecha_salida, reservas[i].fecha_entrada) || comparar_fechas(reservas[i].fecha_salida, fecha_entrada))) {
+        printf("El cuarto %d ya está reservado entre %s y %s.\n", *numero_cuarto, reservas[i].fecha_entrada, reservas[i].fecha_salida);
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 bool verificar_fecha(char *fecha) {
