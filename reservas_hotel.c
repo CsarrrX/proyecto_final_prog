@@ -276,10 +276,12 @@ void modificar_reserva() {
             while(!verificar_fecha(reservas[i].fecha_salida) || !comparar_fechas(reservas[i].fecha_entrada, reservas[i].fecha_salida));
             break;
           case 4:
-            printf("Ingrese el nuevo numero de cuarto: ");
-            scanf("%d", &reservas[i].numero_de_habitacion);
-            getchar();
-            verificar_cuarto(&reservas[i].numero_de_habitacion, reservas[i].fecha_entrada, reservas[i].fecha_salida, &reservas[i].ID);
+            do {
+              printf("Ingrese el nuevo numero de cuarto: ");
+              scanf("%d", &reservas[i].numero_de_habitacion);
+              getchar();
+            }
+            while(verificar_cuarto(&reservas[i].numero_de_habitacion, reservas[i].fecha_entrada, reservas[i].fecha_salida, &reservas[i].ID));
             break;
           case 5:
             reservas[i].desayuno = !reservas[i].desayuno;
