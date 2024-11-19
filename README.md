@@ -59,7 +59,7 @@ Las siguientes librerías estándar de C se utilizan en el programa:
     string.h: Manejo de cadenas de caracteres.
     stdlib.h: Asignación de memoria dinámica.
 
-Contribuciones
+### Contribuciones
 
 Si deseas contribuir al proyecto, puedes hacer un fork del repositorio y enviar un pull request.
 > [!NOTE]
