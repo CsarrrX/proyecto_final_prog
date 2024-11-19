@@ -10,8 +10,8 @@ Este programa en C permite gestionar reservas de habitaciones en un hotel. Inclu
 
 ## Instalación
 
-1. Clona este repositorio o descarga el archivo fuente.
-   ```bash
+Clona este repositorio o descarga el archivo fuente.
+   
       git clone https://github.com/usuario/sistema-reservas-hotel.git
 
 Navega hasta el directorio del proyecto:
