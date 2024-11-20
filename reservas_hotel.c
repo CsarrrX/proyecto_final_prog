@@ -401,8 +401,23 @@ bool verificar_cuarto(const int *const numero_cuarto, const char *const fecha_en
     printf("El cuarto no existe, por favor introduce un numero de 1 a 740: \n");
     return false;
   }
-  for (int i = 0; i < num_reservas; i++) {
+  // Recorremos las reservas existentes
+  for (int i = 0; i < num_reservas; i++) { 
+    // Si la reserva no es la misma que la que estamos evaluando entonces verificamos que el cuarto y fecha no se solapen
     if (reservas[i].numero_de_habitacion == *numero_cuarto && reservas[i].ID != *ID) {
+      /*  
+       *  LOGICA PARA QUE DOS RESERVACIONES DEL MISMO CUARTO DIFERENTES NO TENGAN LA MISMA FECHA
+       *  Si la fecha de salida de la nueva reservacion es menor a la fecha de entrada de la reservacion a evaluar entonces las fechas no se solapan
+       *  si la fecha de salida de la reservacion a evaluar es menor a la fecha de entrada de la nueva reservacion entonces las fechas tampoco se solapan
+       *  Ahora, si ambas condiciones son falsas, es decir la fecha de salida de la nueva reservacion es MAYOR a la fecha de entrada de la reservacion evaluada 
+       *  y la fecha de salida de la antigua reservacion es MAYOR a la fecha de entrada de la nueva reservacion entonces las fechas se solapan.
+       *
+       *  [10]-[11]-[12]-[13] - Reservacion antigua
+       *                     [14]-[15]-[16] - Nueva reservacion
+       *
+       *  En este caso la fecha de salida de la nueva reservacion no es menor a la fecha de entrada, pero la fecha de salida de la antigua si es menor a la fecha de entrada de la nueva
+       *  POR LO TANTO NO SE SOLAPAN.
+      */
       if (!(comparar_fechas(fecha_salida, reservas[i].fecha_entrada) || comparar_fechas(reservas[i].fecha_salida, fecha_entrada))) {
         printf("El cuarto %d ya está reservado entre %s y %s.\n", *numero_cuarto, reservas[i].fecha_entrada, reservas[i].fecha_salida);
         return false;
