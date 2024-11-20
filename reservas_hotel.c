@@ -15,9 +15,6 @@
 // Incrementos en el tamanio del arreglo de structs (en el heap)
 #define INCREMENTO_CAPACIDAD 10 
 
-// Dias por mes 
-int dias_por_mes[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
 // Definicion de la estructura de una reserva
 struct Reserva {
   int ID;
@@ -47,10 +44,10 @@ void modificar_reserva();
 void cancelar_reserva();
 void buscar_reserva();
 void mostrar_reservas(); 
-bool verificar_cuarto(int*, char*, char*, int*);
-bool verificar_fecha(char*); 
-bool comparar_fechas(char*, char*);
-int calcular_fecha(char*, char*);
+bool verificar_cuarto(const int*const, const char*const, const char*const, const int*const);
+bool verificar_fecha(const char*const); 
+bool comparar_fechas(const char*const, const char*const);
+int calcular_fecha(const char*const, const char*const);
 bool isBisiesto(int);
 
 int main() {
@@ -350,7 +347,7 @@ void buscar_reserva() {
         printf("Fecha de entrada: %s\n", reservas[i].fecha_entrada);
         printf("Fecha de salida: %s\n", reservas[i].fecha_salida);
         printf("Numero de cuarto: %d\n", reservas[i].numero_de_habitacion);
-        printf("Precio: %f\n", reservas[i].precio);
+        printf("Precio: %.2f\n", reservas[i].precio);
         printf("Desayuno: %d\n", reservas[i].desayuno);
         printf("--------------------------------------------------\n");
         break;
@@ -374,12 +371,11 @@ void mostrar_reservas() {
       printf("Fecha de salida: %s\n", reservas[i].fecha_salida);
       printf("Numero de cuarto: %d\n", reservas[i].numero_de_habitacion);
       printf("Desayuno: %d\n", reservas[i].desayuno);
-      printf("--------------------------------------------------\n");
     }
   }
 }
 
-bool verificar_cuarto(int *numero_cuarto, char *fecha_entrada, char *fecha_salida, int *ID) {
+bool verificar_cuarto(const int *const numero_cuarto, const char *const fecha_entrada, const char *const fecha_salida, const int *const ID) {
   if (*numero_cuarto < 1 || *numero_cuarto > 740) {
     printf("El cuarto no existe, por favor introduce un numero de 1 a 740: \n");
     return false;
@@ -395,7 +391,10 @@ bool verificar_cuarto(int *numero_cuarto, char *fecha_entrada, char *fecha_salid
   return true;
 }
 
-bool verificar_fecha(char *fecha) {
+bool verificar_fecha(const char *const fecha) {
+// Dias por mes 
+  int dias_por_mes[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
   if (fecha[2] != '/' || fecha[5] != '/' || strlen(fecha) != 10) {
     return false;
   }
@@ -416,7 +415,7 @@ int dia = (fecha[0] - '0') * 10 + (fecha[1] - '0');
   return dia <= dias_en_mes;
 }
 
-bool comparar_fechas(char *fecha1, char *fecha2) {
+bool comparar_fechas(const char *const fecha1, const char *const fecha2) {
   int dia1 = (fecha1[0] - '0') * 10 + (fecha1[1] - '0');
   int mes1 = (fecha1[3] - '0') * 10 + (fecha1[4] - '0');
   int anio1 = (fecha1[6] - '0') * 1000 + (fecha1[7] - '0') * 100 + (fecha1[8] - '0') * 10 + (fecha1[9] - '0');
@@ -434,7 +433,10 @@ bool comparar_fechas(char *fecha1, char *fecha2) {
   return dia1 < dia2;
 }
 
-int calcular_fecha(char *fecha1, char *fecha2) {
+int calcular_fecha(const char *const fecha1, const char *const fecha2) {
+// Dias por mes 
+  int dias_por_mes[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
   // Asumiendo que fecha1 < fecha2
   int dia1 = (fecha1[0] - '0') * 10 + (fecha1[1] - '0');
   int mes1 = (fecha1[3] - '0') * 10 + (fecha1[4] - '0');
