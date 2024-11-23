@@ -62,5 +62,5 @@ Si deseas contribuir al proyecto, puedes hacer un fork del repositorio y enviar 
 > [!NOTE]
 > No soy el unico contribuidor del proyecto | creditos a: Dulce Maria y Axel Adrian
 
-Licencia
+Licencia: 
 Este proyecto está licenciado bajo la Licencia MIT.
