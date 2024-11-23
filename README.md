@@ -45,9 +45,6 @@ Opciones del Menú
     cancelar_reserva(): Elimina una reserva registrada.
     buscar_reserva(): Busca y muestra una reserva específica.
     mostrar_reservas(): Muestra todas las reservas activas.
-    verificar_fecha(char *fecha): Verifica que las fechas tengan el formato correcto (dd/mm/aaaa).
-    comparar_fechas(char *fecha1, char *fecha2): Compara dos fechas para verificar su orden.
-    calcular_fecha(char *fecha_inicio, char *fecha_final): Calcula la cantidad de días entre dos fechas.
 
 ## Dependencias
 
